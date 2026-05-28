@@ -1,0 +1,109 @@
+/* ==========================================
+   RESET MINIMALE & STILE EDITORIALE APPLE
+   ========================================== */
+
+:root {
+	--font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+	--font-serif: "Georgia", Cambria, "Times New Roman", Times, serif;
+	
+	/* Tavolozza Colori Sobria (Istituzionale Apple) */
+	--bg-color: #fbfbfd;       /* Bianco opaco, riposante per gli occhi */
+	--text-main: #1d1d1f;      /* Grigio scurissimo (mai nero puro) per massima leggibilità */
+	--text-muted: #86868b;     /* Grigio chiaro per date e info secondarie */
+	--accent: #0066cc;         /* Azzurro sobrio per i link importanti */
+	--border-color: #e5e5e7;   /* Linee divisorie finissime */
+}
+
+html, body {
+	margin: 0;
+	padding: 0;
+	background-color: var(--bg-color) !important;
+	color: var(--text-main) !important;
+	font-family: var(--font-sans);
+	line-height: 1.85;
+	letter-spacing: -0.003em;
+	-webkit-font-smoothing: antialiased;
+}
+
+/* ==========================================
+   STRUTTURA DELLA PAGINA (GABBIA MINIMALE)
+   ========================================== */
+
+main {
+	max-width: 720px; /* Larghezza perfetta per non affaticare la vista */
+	margin: 0 auto;
+	padding: 2rem 1.5rem;
+}
+
+/* Distrugge istantaneamente sfumature, ombre e grafiche pesanti del vecchio tema */
+div, section, article, header, footer {
+	background-image: none !important;
+	background-color: transparent !important;
+	box-shadow: none !important;
+}
+
+/* ==========================================
+   TIPOGRAFIA DA GRANDE GIORNALE
+   ========================================== */
+
+h1, h2, h3, h4, h5, h6 {
+	font-family: var(--font-serif) !important;
+	color: #000000 !important;
+	font-weight: 700;
+	line-height: 1.25;
+	letter-spacing: -0.015em;
+	margin-top: 2rem;
+	margin-bottom: 1rem;
+}
+
+h1 {
+	font-size: 2.5rem;
+	margin-top: 1rem;
+}
+
+h2 { font-size: 1.85rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3rem; }
+h3 { font-size: 1.4rem; }
+
+p {
+	margin-top: 0;
+	margin-bottom: 1.6rem;
+	font-size: 1.1rem; /* Dimensione ideale per la lettura prolungata */
+}
+
+/* ==========================================
+   ELEMENTI GRAFICI ED EDITORIALI
+   ========================================== */
+
+hr {
+	border: 0;
+	border-top: 1px solid var(--border-color);
+	margin: 2.5rem 0;
+}
+
+a {
+	color: var(--accent);
+	text-decoration: none;
+	transition: color 0.2s ease;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+/* Immagini pulite con angoli smussati Apple */
+img {
+	max-width: 100%;
+	height: auto;
+	border-radius: 8px;
+	margin: 2rem auto;
+	display: block;
+}
+
+/* Data e testi piccoli */
+time, .date, .metadata {
+	font-family: var(--font-sans);
+	color: var(--text-muted);
+	font-size: 0.9rem;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}

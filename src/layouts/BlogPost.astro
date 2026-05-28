@@ -1,0 +1,178 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import Header from '../components/Header.astro';
+
+type Props = CollectionEntry<'blog'>['data'];
+
+const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+---
+
+<html lang="it">
+	<head>
+		<BaseHead title={title} description={description} />
+		<style is:global>
+			/* =========================================================
+			   FORZATURA TOTAL-WHITE E STILE EDITORIALE APPLE SEVERO
+			   ========================================================= */
+			html, body, main, article, .prose, section, div {
+				background-color: #fbfbfd !important; /* Il bianco opaco e riposante istituzionale di Apple */
+				background-image: none !important;    /* Rimuove qualsiasi sfumatura, gradiente o colore del vecchio tema */
+				box-shadow: none !important;          /* Rimuove ombre pesanti e vistose */
+				color: #1d1d1f !important;            /* Il grigio scurissimo editoriale che non affatica la vista */
+			}
+
+			html, body {
+				margin: 0 !important;
+				padding: 0 !important;
+				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+				line-height: 1.85 !important;
+				letter-spacing: -0.003em !important;
+				-webkit-font-smoothing: antialiased !important;
+			}
+
+			/* LA STRUTTURA CENTRATA DEL POST (LA GABBIA AUREA DA GRANDE GIORNALE) */
+			main {
+				width: 100% !important;
+				max-width: 100% !important;
+				margin: 0 !important;
+				padding: 2rem 0 !important;
+			}
+
+			.prose {
+				width: 680px !important; /* La larghezza perfetta da saggio per facilitare la lettura */
+				max-width: calc(100% - 2rem) !important;
+				margin: 0 auto !important;
+				padding: 0 1rem !important;
+			}
+
+			/* COMPORTAMENTO RIGIDO DEL TESTO DELL'ARTICOLO */
+			.prose p, .prose li, .prose span, .prose div {
+				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+				font-size: 1.15rem !important; /* Dimensione aumentata per dare importanza e autorevolezza alle parole */
+				line-height: 1.85 !important;
+				color: #1d1d1f !important;
+				margin-bottom: 1.6rem !important;
+			}
+
+			/* IMMAGINE DI COPERTINA (HERO IMAGE) */
+			.hero-image {
+				width: 100% !important;
+				max-width: 900px !important; /* Leggermente più ampia del testo per dare respiro visivo */
+				margin: 0 auto 3rem auto !important;
+				padding: 0 1rem !important;
+			}
+			
+			.hero-image img {
+				display: block !important;
+				width: 100% !important;
+				height: auto !important;
+				margin: 0 auto !important;
+				border-radius: 8px !important; /* Angoli finemente smussati in puro stile Apple */
+				box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03) !important; /* Ombra minimale quasi invisibile */
+			}
+
+			/* SEZIONE TITOLO (SERIETÀ DA PRIMA PAGINA DI UN QUOTIDIANO CORPOSO) */
+			.title {
+				margin-bottom: 2.5rem !important;
+				text-align: center !important;
+				line-height: 1.2 !important;
+				background: transparent !important;
+			}
+
+			.title h1 {
+				font-family: "Georgia", Cambria, "Times New Roman", Times, serif !important;
+				font-size: 2.7rem !important;
+				font-weight: 700 !important;
+				color: #000000 !important;
+				letter-spacing: -0.015em !important;
+				margin: 0.5rem 0 1.5rem 0 !important;
+			}
+
+			.date {
+				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+				font-size: 0.9rem !important;
+				text-transform: uppercase !important;
+				letter-spacing: 0.05em !important;
+				color: #86868b !important; /* Grigio chiaro istituzionale Apple */
+				margin-bottom: 0.5rem !important;
+			}
+
+			.last-updated-on {
+				font-style: italic !important;
+				font-size: 0.85rem !important;
+				color: #86868b !important;
+				margin-top: 0.25rem !important;
+			}
+
+			hr {
+				border: 0 !important;
+				border-top: 1px solid #e5e5e7 !important; /* Linea divisoria sottile, grigia e pulita */
+				margin: 2rem 0 !important;
+			}
+
+			/* TITOLI INTERNI AI VECCHI POST (FORMATO GIORNALISTICO SAGGISTICO) */
+			.prose h2, .prose h3, .prose h4 {
+				font-family: "Georgia", Cambria, "Times New Roman", Times, serif !important;
+				color: #000000 !important;
+				font-weight: 700 !important;
+				margin-top: 2.5rem !important;
+				margin-bottom: 0.8rem !important;
+				line-height: 1.3 !important;
+			}
+
+			.prose h2 { font-size: 1.9rem !important; border-bottom: 1px solid #e5e5e7 !important; padding-bottom: 0.4rem !important; }
+			.prose h3 { font-size: 1.45rem !important; }
+
+			/* SANATORIA PER LE IMMAGINI INTERNE AI VECCHI POST ERÈDITATI */
+			.prose img {
+				max-width: 100% !important;
+				height: auto !important;
+				border-radius: 6px !important;
+				margin: 2.5rem auto !important;
+				display: block !important;
+			}
+
+			/* COLLEGAMENTI IPERTESTUALI (AZZURRO SOBRIO PER IL PERSONAL BRANDING) */
+			.prose a {
+				color: #0066cc !important;
+				text-decoration: none !important;
+			}
+			.prose a:hover {
+				text-decoration: underline !important;
+			}
+		</style>
+	</head>
+
+	<body>
+		<Header />
+		<main>
+			<article>
+				<div class="hero-image">
+					{heroImage && <Image width={1020} height={510} src={heroImage} alt="" format="avif" quality="mid" />}
+				</div>
+				<div class="prose">
+					<div class="title">
+						<div class="date">
+							<FormattedDate date={pubDate} />
+							{
+								updatedDate && (
+									<div class="last-updated-on">
+										Aggiornato il <FormattedDate date={updatedDate} />
+									</div>
+								)
+							}
+						</div>
+						<h1>{title}</h1>
+						<hr />
+					</div>
+					<slot />
+				</div>
+			</article>
+		</main>
+		<Footer />
+	</body>
+</html>
