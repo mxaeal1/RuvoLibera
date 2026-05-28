@@ -1,0 +1,214 @@
+---
+import BaseHead from '../../components/BaseHead.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import GhostContentAPI from '@tryghost/content-api';
+
+export async function getStaticPaths() {
+  const api = new GhostContentAPI({
+    url: import.meta.env.GHOST_API_URL,
+    key: import.meta.env.GHOST_CONTENT_API_KEY,
+    version: "v5.0"
+  });
+  
+  const posts = await api.posts.browse({ limit: 10 }); // Gestisce i primi 10 per lo sviluppo veloce
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: post,
+  }));
+}
+
+const post = Astro.props;
+
+// URL del tuo vecchio sito WordPress ancora online per recuperare le immagini mancanti
+const VECCHIO_SITO_WP = "https://ruvolibera.it"; // Sostituisci con il dominio reale se diverso
+
+// Regola potenziata per l'immagine di copertina
+const fixImageUrl = (url) => {
+  if (!url) return '';
+  
+  // Se l'immagine punta alla VM locale o a percorsi relativi di Ghost, la reindirizziamo al vecchio WP funzionante
+  let localUrl = url.replace(/http:\/\/35\.188\.52\.213:2368/g, '');
+  if (localUrl.startsWith('/content/images/wordpress/')) {
+    localUrl = `${VECCHIO_SITO_WP}${localUrl.replace('/content/images/wordpress/', '/wp-content/uploads/')}`;
+  }
+  
+  localUrl = localUrl
+    .replace(/-jpg\.webp/g, '.jpg')
+    .replace(/-JPG\.webp/g, '.JPG')
+    .replace(/-jpeg\.webp/g, '.jpeg')
+    .replace(/-JPEG\.webp/g, '.JPEG')
+    .replace(/-png\.webp/g, '.png')
+    .replace(/-PNG\.webp/g, '.PNG')
+    .replace(/-gif\.webp/g, '.gif')
+    .replace(/-GIF\.webp/g, '.GIF');
+    
+  return localUrl;
+};
+
+// Pulizia e sanatoria profonda del testo dell'articolo
+const cleanHtmlContent = (html) => {
+  if (!html) return '';
+  
+  let cleaned = html.replace(/http:\/\/35\.188\.52\.213:2368/g, '');
+  
+  // Sanatoria immediata: se l'HTML contiene i vecchi percorsi immagini di WordPress migrati male,
+  // costringiamo Astro a pescarli direttamente dal tuo vecchio sito online, aggirando i crash del PC
+  cleaned = cleaned.replace(/src="\/content\/images\/wordpress\//g, `src="${VECCHIO_SITO_WP}/wp-content/uploads/`);
+  
+  cleaned = cleaned
+    .replace(/-jpg\.webp/g, '.jpg')
+    .replace(/-JPG\.webp/g, '.JPG')
+    .replace(/-jpeg\.webp/g, '.jpeg')
+    .replace(/-JPEG\.webp/g, '.JPEG')
+    .replace(/-png\.webp/g, '.png')
+    .replace(/-PNG\.webp/g, '.PNG')
+    .replace(/-gif\.webp/g, '.gif')
+    .replace(/-GIF\.webp/g, '.GIF');
+    
+  return cleaned;
+};
+---
+
+<!doctype html>
+<html lang="it">
+	<head>
+		<BaseHead title={post.title} description={post.custom_excerpt || post.excerpt} />
+	</head>
+
+	<body>
+		<Header />
+		<main>
+			<article>
+				<div class="hero-image">
+					{post.feature_image && <img width={1020} height={510} src={fixImageUrl(post.feature_image)} alt="" />}
+				</div>
+				<div class="prose">
+					<div class="title">
+						<h1>{post.title}</h1>
+						<hr />
+					</div>
+					<!-- Stampa dell'articolo pulito con la sanatoria per le immagini attive -->
+					<div set:html={cleanHtmlContent(post.html)} />
+				</div>
+			</article>
+		</main>
+		<Footer />
+	</body>
+</html>
+
+<style is:global>
+	/* =========================================================
+	   FORZATURA TOTAL-WHITE E STILE EDITORIALE APPLE SEVERO
+	   ========================================================= */
+	html, body, main, article, .prose, section, div, header, footer {
+		background-color: #fbfbfd !important; /* Il bianco opaco e riposante istituzionale di Apple */
+		background-image: none !important;    /* Rimuove qualsiasi sfumatura, gradiente o colore del vecchio tema */
+		box-shadow: none !important;          /* Rimuove ombre pesanti e vistose */
+		color: #1d1d1f !important;            /* Il grigio scurissimo editoriale che non affatica la vista */
+	}
+
+	html, body {
+		margin: 0 !important;
+		padding: 0 !important;
+		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+		line-height: 1.85 !important;
+		letter-spacing: -0.003em !important;
+		-webkit-font-smoothing: antialiased !important;
+	}
+
+	/* LA STRUTTURA CENTRATA DEL POST (LA GABBIA AUREA DA GRANDE GIORNALE) */
+	main {
+		width: 100% !important;
+		max-width: 100% !important;
+		margin: 0 !important;
+		padding: 2rem 0 !important;
+	}
+
+	.prose {
+		width: 680px !important; /* La larghezza perfetta da saggio per facilitare la lettura universale */
+		max-width: calc(100% - 2rem) !important;
+		margin: 0 auto !important;
+		padding: 0 1rem !important;
+	}
+
+	/* COMPORTAMENTO RIGIDO DEL TESTO DELL'ARTICOLO */
+	.prose p, .prose li, .prose span, .prose div {
+		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+		font-size: 1.15rem !important; /* Dimensione aumentata per dare importanza e autorevolezza alle parole */
+		line-height: 1.85 !important;
+		color: #1d1d1f !important;
+		margin-bottom: 1.6rem !important;
+	}
+
+	/* IMMAGINE DI COPERTINA (HERO IMAGE) */
+	.hero-image {
+		width: 100% !important;
+		max-width: 900px !important; /* Leggermente più ampia del testo per dare respiro visivo */
+		margin: 0 auto 3rem auto !important;
+		padding: 0 1rem !important;
+	}
+	
+	.hero-image img {
+		display: block !important;
+		width: 100% !important;
+		height: auto !important;
+		margin: 0 auto !important;
+		border-radius: 8px !important; /* Angoli finemente smussati in puro stile Apple */
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03) !important; /* Ombra minimale quasi invisibile */
+	}
+
+	/* SEZIONE TITOLO (SERIETÀ DA PRIMA PAGINA DI UN QUOTIDIANO CORPOSO) */
+	.title {
+		margin-bottom: 2.5rem !important;
+		text-align: center !important;
+		line-height: 1.2 !important;
+		background: transparent !important;
+	}
+
+	.title h1 {
+		font-family: "Georgia", Cambria, "Times New Roman", Times, serif !important;
+		font-size: 2.7rem !important;
+		font-weight: 700 !important;
+		color: #000000 !important;
+		letter-spacing: -0.015em !important;
+		margin: 0.5rem 0 1.5rem 0 !important;
+	}
+
+	hr {
+		border: 0 !important;
+		border-top: 1px solid #e5e5e7 !important; /* Linea divisoria sottile, grigia e pulita */
+		margin: 2rem 0 !important;
+	}
+
+	/* TITOLI INTERNI AI VECCHI POST (FORMATO GIORNALISTICO SAGGISTICO) */
+	.prose h2, .prose h3, .prose h4 {
+		font-family: "Georgia", Cambria, "Times New Roman", Times, serif !important;
+		color: #000000 !important;
+		font-weight: 700 !important;
+		margin-top: 2.5rem !important;
+		margin-bottom: 0.8rem !important;
+		line-height: 1.3 !important;
+	}
+
+	.prose h2 { font-size: 1.9rem !important; border-bottom: 1px solid #e5e5e7 !important; padding-bottom: 0.4rem !important; }
+	.prose h3 { font-size: 1.45rem !important; }
+
+	/* SANATORIA RIGIDA PER LE IMMAGINI INTERNE AI VECCHI POST */
+	.prose img {
+		max-width: 100% !important;
+		height: auto !important;
+		border-radius: 6px !important;
+		margin: 2.5rem auto !important;
+		display: block !important;
+	}
+
+	/* COLLEGAMENTI IPERTESTUALI (AZZURRO SOBRIO PER IL PERSONAL BRANDING) */
+	.prose a {
+		color: #0066cc !important;
+		text-decoration: none !important;
+	}
+	.prose a:hover {
+		text-decoration: underline !important;
+	}
+</style>
