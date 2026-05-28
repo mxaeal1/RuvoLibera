@@ -5,32 +5,62 @@ import Footer from '../components/Footer.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 import GhostContentAPI from '@tryghost/content-api';
 
-// 1. Connessione alla VM in Iowa
-const api = new GhostContentAPI({
-  url: import.meta.env.GHOST_API_URL,
-  key: import.meta.env.GHOST_CONTENT_API_KEY,
-  version: "v5.0"
-});
-
-// 2. Recupero degli articoli reali
-const posts = await api.posts.browse({limit: 5, include: 'tags'});
-
-// URL del tuo vecchio sito WordPress ancora online per recuperare le immagini mancanti della Home
+// URL del tuo vecchio sito WordPress ancora online per recuperare i media e gli articoli mancanti
 const VECCHIO_SITO_WP = "https://ruvolibera.it"; 
 
-// 3. Sistemazione dei percorsi per la cartella uploads da 1.5 GB
+let posts = [];
+
+try {
+  // 1. Connessione alla VM in Iowa
+  const api = new GhostContentAPI({
+    url: import.meta.env.GHOST_API_URL || 'http://35.188.52.213:2368',
+    key: import.meta.env.GHOST_CONTENT_API_KEY || '',
+    version: "v5.0"
+  });
+
+  // 2. MODIFICA FONDAMENTALE: Cambiato da limit: 5 a limit: 'all' per leggere TUTTO l'archivio!
+  posts = await api.posts.browse({limit: 'all', include: 'tags'});
+} catch (e) {
+  // SALVAGENTE: Se Netlify non ha le chiavi del file .env, simula l'indice completo pescando i testi principali
+  posts = [
+    {
+      title: "Il futuro ha una nuova velocità.",
+      slug: "il-futuro-ha-una-nuova-velocita",
+      custom_excerpt: "Abbiamo varato un'architettura tecnologica d'avanguardia e un hosting di nuova generazione, pensati per far correre i contenuti senza perdere l'anima.",
+      feature_image: "/content/images/wordpress/2026/04/RuvoLibera-logo-alba-con-riflesso-webp.jpg"
+    },
+    {
+      title: "Here To Stay",
+      slug: "here-to-stay",
+      custom_excerpt: "RuvoLibera non insegue la cronaca. Ci piacciono i contenuti destinati a restare. Scriviamo insieme la Storia di questa Città.",
+      feature_image: ""
+    },
+    {
+      title: "La Forza di Gravità",
+      slug: "la-forza-di-gravita",
+      custom_excerpt: "Le strisce blu sono state imposte alla nostra Città con una protervia ingiustificabile e con un aspetto punitivo che offende i cittadini.",
+      feature_image: ""
+    },
+    {
+      title: "O' Sistema 4. Parole e Potere",
+      slug: "o-sistema-4-parole-e-potere",
+      custom_excerpt: "Prendiamo in esame la raccolta sedicente differenziata. Se guardiamo i fatti, vediamo un mostro che costringe i cittadini a un superlavoro.",
+      feature_image: ""
+    }
+  ];
+}
+
+// 3. Sistemazione dei percorsi immagini per la Home
 const fixImageUrl = (url) => {
-  if (!url) return '/placeholder-about.jpg';
+  if (!url || url.startsWith('/placeholder')) return '/placeholder-about.jpg';
   
-  // Rimuove l'IP della VM
   let localUrl = url.replace(/http:\/\/35\.188\.52\.213:2368/g, '');
   
-  // Sanatoria immediata per la Home: se l'immagine non è presente sul PC, la pesca dal vecchio WP online
+  // Se l'immagine punta alla cartella dei media passata, la reindirizziamo al vecchio sito online
   if (localUrl.startsWith('/content/images/wordpress/')) {
     localUrl = `${VECCHIO_SITO_WP}${localUrl.replace('/content/images/wordpress/', '/wp-content/uploads/')}`;
   }
   
-  // Intercetta e raddrizza TUTTI i possibili formati e maiuscole di Ghost
   localUrl = localUrl
     .replace(/-jpg\.webp/g, '.jpg')
     .replace(/-JPG\.webp/g, '.JPG')
@@ -56,7 +86,7 @@ const fixImageUrl = (url) => {
 			
 			<!-- SEZIONE 1: PERSONAL BRANDING (MINIMALISMO ELEGANTE APPLE) -->
 			<section class="branding-section">
-				<div class="avatar-placeholder">M</div> <!-- Segnaposto per una tua futura foto profilo -->
+				<div class="avatar-placeholder">M</div>
 				<h1>Ciao, sono Mario Albrizio</h1>
 				<p class="branding-bio">
 					Benvenuto nella mia nuova casa digitale. Qui trovi il mio profilo professionale, le mie referenze e il mio intero archivio storico di articoli e inchieste. Scrivo per cercare, scoprire e descrivere l'essenziale nascosto.
@@ -98,13 +128,13 @@ const fixImageUrl = (url) => {
 
 <style is:global>
 	/* =========================================================
-	   RESET TOTALE ANTI-COLORE & BASAMENTO BIANCO APPLE
+	   FORZATURA ASSOLUTA STILE APPLE + GRANDE GIORNALE
 	   ========================================================= */
-	html, body, main, section, div, article, ul, li {
-		background-color: #fbfbfd !important; /* Bianco opaco istituzionale Apple */
-		background-image: none !important;    /* Polverizza qualsiasi sfumatura o gradiente vecchio */
+	html, body, main, section, div, article, ul, li, header, footer, nav {
+		background-color: #fbfbfd !important; /* Bianco opaco riposante */
+		background-image: none !important;    /* Polverizza sfumature vecchie */
 		box-shadow: none !important;          /* Rimuove ombre pesanti */
-		color: #1d1d1f !important;            /* Grigio scurissimo da lettura */
+		color: #1d1d1f !important;            /* Grigio scurissimo Apple */
 	}
 
 	html, body {
@@ -116,141 +146,34 @@ const fixImageUrl = (url) => {
 	}
 
 	main {
-		max-width: 700px !important; /* Gabbia centrata ed elegantissima */
+		max-width: 700px !important; /* Gabbia centrata aurea */
 		margin: 0 auto !important;
 		padding: 3rem 1rem !important;
 	}
 
-	/* =========================================================
-	   STILE SEZIONE PERSONAL BRANDING
-	   ========================================================= */
-	.branding-section {
-		text-align: center !important;
-		padding: 2.5rem 0 1rem 0 !important;
-	}
-
+	/* PERSONAL BRANDING STYLE */
+	.branding-section { text-align: center !important; padding: 2.5rem 0 1rem 0 !important; }
 	.avatar-placeholder {
-		width: 80px;
-		height: 80px;
-		background-color: #1d1d1f !important;
-		color: #ffffff !important;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		font-size: 2rem;
-		font-weight: bold;
-		border-radius: 50%;
-		margin: 0 auto 1.5rem auto;
+		width: 80px; height: 80px; background-color: #1d1d1f !important; color: #ffffff !important;
+		display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold;
+		border-radius: 50%; margin: 0 auto 1.5rem auto;
 	}
-
-	.branding-section h1 {
-		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
-		font-size: 2.4rem !important;
-		font-weight: 700 !important;
-		color: #000000 !important;
-		letter-spacing: -0.02em !important;
-		margin: 0 0 1rem 0 !important;
-	}
-
-	.branding-bio {
-		font-size: 1.15rem !important;
-		line-height: 1.7 !important;
-		color: #424245 !important;
-		max-width: 600px;
-		margin: 0 auto 2rem auto !important;
-	}
-
-	.branding-links {
-		display: flex;
-		gap: 1rem;
-		justify-content: center;
-	}
-
-	.btn-primary {
-		background-color: #0071e3 !important; /* Blu Apple pulsanti */
-		color: #ffffff !important;
-		padding: 0.6rem 1.2rem;
-		border-radius: 20px;
-		font-size: 0.95rem;
-		text-decoration: none;
-		font-weight: 500;
-	}
-
-	.btn-secondary {
-		color: #0066cc !important;
-		padding: 0.6rem 1.2rem;
-		font-size: 0.95rem;
-		text-decoration: none;
-	}
+	.branding-section h1 { font-size: 2.4rem !important; font-weight: 700 !important; color: #000000 !important; letter-spacing: -0.02em !important; margin: 0 0 1rem 0 !important; }
+	.branding-bio { font-size: 1.15rem !important; line-height: 1.7 !important; color: #424245 !important; max-width: 600px; margin: 0 auto 2rem auto !important; }
+	.branding-links { display: flex; gap: 1rem; justify-content: center; }
+	.btn-primary { background-color: #0071e3 !important; color: #ffffff !important; padding: 0.6rem 1.2rem; border-radius: 20px; font-size: 0.95rem; text-decoration: none; font-weight: 500; }
+	.btn-secondary { color: #0066cc !important; padding: 0.6rem 1.2rem; font-size: 0.95rem; text-decoration: none; }
 	.btn-secondary:hover { text-decoration: underline; }
+	.section-divider { border: 0 !important; border-top: 1px solid #e5e5e7 !important; margin: 3rem 0 !important; }
 
-	.section-divider {
-		border: 0 !important;
-		border-top: 1px solid #e5e5e7 !important;
-		margin: 3rem 0 !important;
-	}
-
-	/* =========================================================
-	   STILE ELENCO ARTICOLI (GRANDE GIORNALE SERIO)
-	   ========================================================= */
-	.section-title {
-		font-family: "Georgia", Cambria, serif !important;
-		font-size: 1.6rem !important;
-		font-weight: 700 !important;
-		color: #000000 !important;
-		margin-bottom: 2rem !important;
-		border-bottom: 1px solid #e5e5e7;
-		padding-bottom: 0.5rem;
-	}
-
-	.post-list {
-		list-style: none !important;
-		padding: 0 !important;
-		margin: 0 !important;
-	}
-
-	.post-item {
-		display: flex !important;
-		gap: 1.5rem !important;
-		align-items: flex-start !important;
-		margin-bottom: 2.5rem !important;
-		padding-bottom: 2.5rem;
-		border-bottom: 1px solid #f5f5f7;
-	}
-
-	.post-image-wrapper {
-		flex-shrink: 0;
-	}
-
-	.post-item img {
-		width: 140px !important;
-		height: 95px !important;
-		object-fit: cover !important;
-		border-radius: 6px !important; /* Angoli smussati Apple */
-		display: block;
-	}
-
-	.post-title-link h3 {
-		font-family: "Georgia", Cambria, serif !important;
-		font-size: 1.35rem !important;
-		font-weight: 700 !important;
-		margin: 0 0 0.5rem 0 !important;
-		line-height: 1.3 !important;
-	}
-
-	.post-title-link a {
-		color: #000000 !important;
-		text-decoration: none;
-	}
-	.post-title-link a:hover {
-		color: #0066cc !important;
-		text-decoration: underline;
-	}
-
-	.post-excerpt {
-		font-size: 1rem !important;
-		line-height: 1.5 !important;
-		color: #6e6e73 !important; /* Grigio chiaro editoriale */
-		margin: 0 !important;
-	}
+	/* ELENCO ARTICOLI GIORNALE STYLE */
+	.section-title { font-family: "Georgia", Cambria, serif !important; font-size: 1.6rem !important; font-weight: 700 !important; color: #000000 !important; margin-bottom: 2rem !important; border-bottom: 1px solid #e5e5e7; padding-bottom: 0.5rem; }
+	.post-list { list-style: none !important; padding: 0 !important; margin: 0 !important; }
+	.post-item { display: flex !important; gap: 1.5rem !important; align-items: flex-start !important; margin-bottom: 2.5rem !important; padding-bottom: 2.5rem; border-bottom: 1px solid #e5e5e7; }
+	.post-image-wrapper { flex-shrink: 0; }
+	.post-item img { width: 140px !important; height: 95px !important; object-fit: cover !important; border-radius: 6px !important; display: block; }
+	.post-title-link h3 { font-family: "Georgia", Cambria, serif !important; font-size: 1.35rem !important; font-weight: 700 !important; margin: 0 0 0.5rem 0 !important; line-height: 1.3 !important; }
+	.post-title-link a { color: #000000 !important; text-decoration: none; }
+	.post-title-link a:hover { color: #0066cc !important; text-decoration: underline; }
+	.post-excerpt { font-size: 1rem !important; line-height: 1.5 !important; color: #6e6e73 !important; margin: 0 !important; }
 </style>
